@@ -1,21 +1,33 @@
-
-
 import os
-from telegram.ext import Updater, CommandHandler
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# የሎግ ማስተካከያ
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-def start(update, context):
-    update.message.reply_text("ሰላም! የፊኒሽንግ ስራዎች ቦት በትክክል መስራት ጀምሯል።")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """የ /start ትዕዛዝ ሲጻፍ የሚሰጥ ምላሽ"""
+    await update.message.reply_text('ሰላም! የቴሌግራም ቦትዎ በትክክል እየሰራ ነው።')
 
 def main():
-    updater = Updater(BOT_TOKEN, use_context=True)
-    dp = updater.dispatcher
+    # ከሬንደር Environment Variables ላይ ቶከኑን መቀበል
+    token = os.environ.get("BOT_TOKEN")
+    if not token:
+        raise ValueError("ስህተት: BOT_TOKEN አልተገኘም!")
 
-    dp.add_handler(CommandHandler("start", start))
-
-    updater.start_polling()
-    updater.idle()
+    # ቦቱን መገንባት
+    application = ApplicationBuilder().token(token).build()
+    
+    # ትዕዛዞችን ማገናኘት
+    application.add_handler(CommandHandler("start", start))
+    
+    # ቦቱን ማስጀመር
+    print("ቦቱ በመጀመር ላይ ነው...")
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
